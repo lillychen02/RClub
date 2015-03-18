@@ -126,7 +126,7 @@ library("ggplot2")
 
 #plot activity
 a1 <- ggplot()
-a1 <- a1 + geom_point(data= cell.dat2, aes(x=Date, y=value, color = type), size=3)
+a1 <- a1 + geom_point(data= all.dat, aes(x=Date, y=value, color = type), size=3)
 al <- a1 + labs(title="Current Mobile Phone Usage") 
 a1 <- a1 + geom_vline(xintercept = as.numeric(start), linetype="dashed") + geom_vline(xintercept = as.numeric(end), linetype="dashed")
 a1  #should I split out received and sent text messages?
@@ -150,21 +150,8 @@ i2
 #find out how much data I used while in Canada (somewhere feb20 around 4pm - to feb 23 around 630pm)
 #Calculate the total costs incurred
 total.costs<-rowsum(international.usage[,3:4], international.usage$type)
-colnames(total.costs) <- c("Min|MB|Texts","Cost.USD")
+head(total.costs)
+colnames(total.costs) <- c("Cost.USD", "Min|MB|Texts")
 sum(total.costs$Cost.USD)
 
-#----------------------------------------------------------------------------------------------------
-#plot this
-p1<- ggplot()
-p1<-p1 + geom_point(data=cell.dat$Data, aes(x=Date, y=value), size=3, color="blue")
-p1
-
-#plot the minutes / calls made 
-p2 <- ggplot()
-p2 <- p1+ geom_point(data=cell.dat$Calls, aes(x=Date, y=value), size= 3, color="purple")
-p2
-
-#plot the texts made 
-p3 <- ggplot()
-p3 <- p2+ geom_point(data=cell.dat$Messages, aes(x=Date, y=value), size= 3, color="red")
-p3
+#Now, play around with your own cell data!
