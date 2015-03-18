@@ -103,7 +103,7 @@ cell.dat$Calls$cost.if <- 0.89 * cell.dat$Calls[,4]
 cell.dat2<- merge(cell.dat$Data , cell.dat$Calls, by=c("Date", "type", "cost.if","value"), all=TRUE)
 
 #Then merge result with data for Messages
-cell.dat2<- merge(all.dat, cell.dat$Messages, by=c("Date", "type", "cost.if", "value"), all=TRUE)
+cell.dat2<- merge(cell.dat2, cell.dat$Messages, by=c("Date", "type", "cost.if", "value"), all=TRUE)
 
 #EASIER WAY / SHORTCUT
 
@@ -113,7 +113,7 @@ merge.all <- function(x,y) {
 
 #Now we use Reduce to iterate 
 #   Reduce applies a function to successively 
-#   combine elements in a given vector and inital value
+#     combine elements in a given vector and inital value
 all.dat <- Reduce(merge.all, cell.dat) 
 head(all.dat)
 tail(all.dat)
