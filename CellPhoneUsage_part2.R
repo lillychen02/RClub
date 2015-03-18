@@ -1,4 +1,4 @@
-#This R session will explore cell phone usage data for ~1 month
+z#This R session will explore cell phone usage data for ~1 month
 #   (1) Determine the amount of data I used while in Canada
 #   (2) Determine the extra charges I'll incur
 
