@@ -41,31 +41,76 @@ cell.voice <- raw.voice[, c("Date", "Time", "Destination", "Minutes")]
   head(cell.voice)
 #clean data for messages
 cell.msg <- raw.msg[, c("Date", "Time", "Direction", "Message.Type")]
-
-#convert date and time columns to class Date
+cell.msg$value <- 1
+#convert date and time columns to show date and time of class POSIXlt
+?strptime
   cell.data$Date <- paste(cell.data$Date, cell.data$Time)
     cell.data$Date<-strptime(cell.data$Date, "%m/%d/%y %I:%M %p")
     cell.data <-cell.data[order(cell.data$Date),]
 
-#change col names to be shorter
+#convert date and time columns for cell.voice, cell.msg
+  cell.voice$Date<- paste(cell.voice$Date, cell.voice$Time)
+  cell.voice$Date <-strptime(cell.voice$Date, "%m/%d/%y %I:%M %p")
+  
+  cell.msg$Date<- paste(cell.msg$Date, cell.msg$Time)
+  cell.msg$Date<-strptime(cell.msg$Date, "%m/%d/%y %I:%M %p")
+
+#change col names to be shorter for cell.data
 colnames(cell.data)[3] <- c("Data.in.MB")
 head(cell.data)
 
-#find out how much data I used while in Canada (somewhere feb20 around 4pm - to feb 23 around 630pm)
-
+# ------------------------VISUALIZATION----------------------------------------------------------------------
 library("ggplot2")
-#plot this
+#plot one data frame
 p1<- ggplot()
 p1<-p1 + geom_point(data=cell.data, aes(x=Date, y=Data.in.MB),size=3, color="blue")
 p1
+
+#What if we wanted to see them all plot on one graph?
+
+p2 <- p1 + geom_point(data=cell.voice, aes(x=Date, y=Minutes), size =3, color="red")
+p2
+
+p3 <- p2+ geom_point(data=cell.msg, aes(x=Date, y=1), size=3, color = "green")
+p3
+
+
+#-------------------------------SUMMING / DETERMINE COSTS-----------------------------------------------------------------
+
 
 #approximate the data I used while in Canada
 start<- as.POSIXct("2015-02-20 16:15:00") #I looked up approximate dates/times when I crossed the border
 end <- as.POSIXct("2015-02-23 18:30:00")
 
 #sum data usage
-intl.data <-celldata[cell.data$Date >= start & cell.data$Date <= end, ]
-total.data<-sum(intl.data$Data.in.MB)
-total.price <- total.data * 2.05
-total.price #9.55 (not bad...)
+#       returns all columns the rows have Date that is between start and end, 
+  intl.data <-cell.data[cell.data$Date >= start & cell.data$Date <= end, ]
+  total.data<-sum(intl.data$Data.in.MB)
+  total.price <- total.data * 2.05
+  total.price #9.55 (not bad...)
 
+voice <- cell.voice[cell.voice$Date >= start & cell.voice$Date <= end, ]
+voice.sum <- sum(voice$Minutes)
+voice.cost <- voice.sum * 0.89
+voice.cost # $8.01
+
+# 0.25 for text received, 0.50 for text sent
+msg <- cell.msg[cell.msg$Date >= start & cell.msg$Date <= end,]
+msg.cts<-table(msg$Direction, msg$value)
+msg.cost <- msg.cts["Received",] * 0.25 + msg.cts["Sent",]*0.50
+msg.cost # 7.25
+
+sum(msg.cost, voice.cost, total.price) #$24.81
+#Teaser for Session in 2 weeks---------------------------------------------------------------------
+
+# merge data frames into one data frame
+#   First, want to make sure we add a column to tell us the type of data
+    cell.data$type.data <- "data"
+    cell.voice$type.data <- "voice"
+    cell.msg$type.data <- "texts"
+# Second, merge the data frames using fxn merge
+#   if confused...
+    ?merge
+#     then begin using it
+    merged.dat<- merge (cell.data, cell.voice, by = c("Date","type.data"), all=TRUE)
+    dat  <- merge(merged.dat, cell.msg, by=c("Date", "type.data"), all= TRUE)
